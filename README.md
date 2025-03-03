@@ -1,8 +1,8 @@
 # mock-gcp | Mock GCP Services
 
-![Python Version](https://img.shields.io/badge/python-3.7-blue)
-![Supported GCS Version](https://img.shields.io/badge/gcs-v1.22.0-brightgreen)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![Python Version](https://img.shields.io/badge/python-3.9+-blue)
+![Supported GCS Version](https://img.shields.io/badge/gcs-v2.4.0+-brightgreen)
+[![Code style: black](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
 A library that allows to mock out GCP services in unit tests.
 
@@ -34,7 +34,7 @@ To test this function with `mock-gcp` use the `@mock_storage` decorator which wi
 
 ```python
 from google.cloud import storage
-from mockgcp.storage.backend import mock_storage
+from mockgcp import mock_storage
 
 @mock_storage
 def test_create_bucket_if_doesnt_exist_when_bucket_exists():

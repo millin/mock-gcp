@@ -1,9 +1,9 @@
 init:
-	pip install -r requirements.txt
-	pip install -e .
+	uv sync --dev
 
 test:
-	pytest -v -p pytest_cov
+	uv run pytest -v -p pytest_cov
 
 lint:
-	pylama -l "pyflakes,mccabe"
+	uv run ruff format
+	uv run ruff check --fix

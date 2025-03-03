@@ -1,32 +1,30 @@
-import uuid
-import functools
-from unittest.mock import patch
+from __future__ import annotations
 
-from mockgcp.storage.client import MockClient
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING, ClassVar
 
-
-class StorageBackend(object):
-    def __init__(self, project=None):
-        if project is None:
-            project = "test-project-" + str(uuid.uuid1())
-        self.project = project
-        self.buckets = {}
-        self.blobs = {}
-
-    def reset(self):
-        self.buckets = {}
-        self.blobs = {}
-
-    def mock_storage(self, func):
-        def wrapper(*args, **kwargs):
-            self.reset()
-            with patch("google.cloud.storage.Client", MockClient):
-                return func(*args, **kwargs)
-
-        functools.update_wrapper(wrapper, func)
-        wrapper.__wrapped__ = func
-        return wrapper
+if TYPE_CHECKING:
+    from mockgcp.storage.blob import MockBlob
+    from mockgcp.storage.bucket import MockBucket
 
 
-backend = StorageBackend()
-mock_storage = backend.mock_storage
+class StorageBackend:
+    _projects: ClassVar[dict[str, StorageBackend]] = {}
+
+    def __new__(cls, project):
+        if project not in cls._projects:
+            cls._projects[project] = super().__new__(cls)
+        return cls._projects[project]
+
+    def __init__(self, project) -> None:
+        if not hasattr(self, "project"):
+            self.project = project
+
+            self._tmp = TemporaryDirectory()
+            self.data_dir = Path(self._tmp.name)
+            self.buckets: dict[str, MockBucket] = {}
+            self.blobs: dict[str, dict[str, MockBlob]] = {}
+
+    def __del__(self) -> None:
+        self._tmp.cleanup()
